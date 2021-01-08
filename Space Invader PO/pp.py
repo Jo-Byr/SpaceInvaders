@@ -1,10 +1,15 @@
 #Header
 """
-But: crÃ©er une interface graphique
+But: crÃƒÆ’Ã‚Â©er une interface graphique
 Auteur : Ankou Pierre-Olivier
 Date de maj : 18/12/2020
 """
 
+"""
+Programme principale
+Le programme principale définit la fenêtre. Le début du jeu commence à
+la ligne 43.
+"""
 from tkinter import Tk,Button,Label,PhotoImage,Canvas,Menu
 
 from score import fscore as score
@@ -34,7 +39,8 @@ item = canvas1.create_image(613,347,image = photo)
 canvas1.pack(side = "left")
 
 #Alien
-fgenerateur(window,canvas1)
+mode = 0
+fgenerateur(window,canvas1,mode)
 
 #menu
 menubar = Menu(window)
