@@ -64,6 +64,7 @@ class Alien():
     Classe générant un alien et gérant ses déplacements
     """
     def __init__(self,canvas,window):
+        #Création d'un alien et des variables associées
         self.canvas = canvas
         self.window = window
         
@@ -74,36 +75,44 @@ class Alien():
         self.alien = self.canvas.create_rectangle(self.alien_x,self.alien_y,self.alien_x+100,self.alien_y+20, fill='white')
     
     def run(self):
+        #Fonction de déplacement
         global PERDU
         if self.dead == 0:
+            #Si l'alien n'est pas mort, il tire aléatoirement (2% de chance à chaque déplacement)
             rand_tir = randint(0,49)
             if rand_tir == 0:
                 self.tir()
-        direction = self.direction
-        if direction==1:
+        direction = self.direction #Variable disant si l'alien doit aller à droite (1) ou à gauche (0)
+        if self.alien_y >= 780 :
+            #Test de collision avec le joueur
+            PERDU = True #Décelenche un popup
+            Defaite(self.window)
+        elif direction==1:
+            #Déplacement à droite
             if self.alien_x<1100:
+                #Test de collision avec le bord de l'écran
                 self.alien_x += 10
             else:
+                #Au contact du bord de l'écran, l'alien descend d'un cran
                 self.direction = -1
                 self.alien_y += 20
-                if self.alien_y >= 780 :
-                    PERDU = True
-                    Defaite(self.window)
         elif direction == -1:
+            #Déplacement à gauche
             if self.alien_x>0:
+                #Test de collision avec le bord de l'écran
                 self.alien_x -= 10
             else:
+                #Au contact du bord de l'écran, l'alien descend d'un cran
                 self.direction = 1
                 self.alien_y += 20
-                if self.alien_y >= 780 :
-                    PERDU = True
-                    Defaite(self.window)
         if PERDU == False:
+            #Déplacement visuel
             self.canvas.coords(self.alien,self.alien_x,self.alien_y,self.alien_x+100,self.alien_y+20)
             self.window.after(40,self.run)  #La méthode after semble retourner une erreur à 13 chiffres
             
             
     def tir(self):
+        #Création d'un tir ennemi
         Tir(self.alien_x+47, self.alien_y + 40, self.canvas, self.window, 0)
 
 class Vaisseau():
@@ -121,7 +130,6 @@ class Vaisseau():
         """
         Cette fonction permet un déplacement à droite et initialise un déplacement continue vers la droite si le bouton est maitnenue
         """
-        
         global RIGHT
         T[0] = T[1]
         T[1] = [event.keysym,time()]
