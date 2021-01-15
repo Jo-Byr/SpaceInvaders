@@ -301,7 +301,7 @@ class Tir():
         elif self.camp == 1:
             #Tir provenant du vaisseau
             k=0
-            while k<len(liste_aliens):
+            while k<len(alien.liste_aliens):
                 if self.x+6>=alien.liste_aliens_x[k] and self.x<=alien.liste_aliens_x[k]+100:
                     if self.y+15>=alien.liste_aliens_y[k] and self.y<=alien.liste_aliens_y[k]+20:
                         self.canvas.delete(self.tir)
