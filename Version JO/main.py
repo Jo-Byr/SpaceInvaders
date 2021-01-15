@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jan 14 15:06:42 2021
+Created on Thu Jan 14 16:24:39 2021
 
 @author: jonat
 """
@@ -10,14 +10,14 @@ from time import time
 from random import randint
 
 """
-Les tirs ne peuvent toucher que l'alien de gauche
-La cadence de tir en spammant est énorme
+Parfois il est possible de lancer 2 tirs (presque) à la fois
+Les aliens ne tirent pas
 """
     
 T = [[0,time()],[0,time()]]
 RIGHT = False
 LEFT = False
-TIR = False
+tir_in_screen = False
 PERDU = False
 VIES = 3
  
@@ -91,93 +91,59 @@ class Vaisseau():
         Cette fonction permet un déplacement à droite et initialise un déplacement continue vers la droite si le bouton est maitnenue
         """
         
-        global TIR
-        T[0] = T[1]
-        T[1] = [event.keysym,time()]
-        if (T[0][0] != T[1][0]) or TIR==False:
-            TIR = True
-            self.boucle_tir()
         
-    def boucle_tir(self):
-        """
-        Cette fonction est celle appelée en boucle afin de maintenir le mouvement vers la droite
-        """
-        if TIR == True:
-            Tir(self.player_x+27,760,self.canvas,self.window,1)
-            self.window.after(500,self.boucle_tir)
-    
-    def stoptir(self,event):
-        """
-        Cette fonction premet de cesser le mouvement continu vers la droite lorsque le bouton est relaché
-        """
-        global TIR
-        TIR = False
-           
- 
-class GroupeAlien():
-    def __init__(self,canvas,window,number):
-        self.canvas = canvas
-        self.window = window
-        self.number = number
-        
-        self.liste_aliens = []
-        for k in range(self.number):
-            self.liste_aliens.append(Alien(self.canvas,self.window,k))
-        
-    def run(self):
-        for k in self.liste_aliens:
-            k.run()
- 
+        Tir(self.player_x+27,760,self.canvas,self.window,1)
+
+liste_aliens = []
+liste_aliens_x = []
+liste_aliens_y = []
 class Alien():
     """
     Classe générant un alien et gérant ses déplacements
     """
-    def __init__(self,canvas,window,ID):
+    def __init__(self,canvas,window,number):
         #Création d'un alien et des variables associées
         self.canvas = canvas
         self.window = window
-        self.ID = ID
         
-        self.dead = 0
-        self.alien_x = 200*(self.ID)
-        self.alien_y = 0
         self.direction = 1
-        self.alien = self.canvas.create_rectangle(self.alien_x,self.alien_y,self.alien_x+100,self.alien_y+20, fill='white')
-    
+        
+        global liste_aliens_x,liste_aliens_y
+        
+        for k in range(number):
+            liste_aliens.append(self.canvas.create_rectangle(200*k,0,200*k+100,20, fill='white'))
+            liste_aliens_x.append(200*k)
+            liste_aliens_y.append(0)
+            
     def run(self):
-        #Fonction de déplacement
-        global PERDU
-        if self.dead == 0:
-            #Si l'alien n'est pas mort, il tire aléatoirement (0.5% de chance à chaque déplacement)
-            rand_tir = randint(0,199)
-            if rand_tir == 0:
-                self.tir()
+        global liste_aliens_x,liste_aliens_y,PERDU
         direction = self.direction #Variable disant si l'alien doit aller à droite (1) ou à gauche (0)
-        if self.alien_y >= 780 :
+        if liste_aliens_x[0] >= 780 :
             #Test de collision avec le joueur
             PERDU = True #Décelenche un popup
             Defaite(self.window)
         elif direction==1:
             #Déplacement à droite
-            if groupe_alien.liste_aliens[-1].alien_x<1100:
+            if liste_aliens_x[-1]<1100:
                 #Test de collision avec le bord de l'écran
-                self.alien_x += 4
+                liste_aliens_x = [k+4 for k in liste_aliens_x]
             else:
                 #Au contact du bord de l'écran, l'alien descend d'un cran
                 self.direction = -1
-                self.alien_y += 25
+                liste_aliens_y = [k+25 for k in liste_aliens_y]
         elif direction == -1:
             #Déplacement à gauche
-            if groupe_alien.liste_aliens[0].alien_x>0:
+            if liste_aliens_x[0]>0:
                 #Test de collision avec le bord de l'écran
-                self.alien_x -= 4
+                liste_aliens_x = [k-4 for k in liste_aliens_x]
             else:
                 #Au contact du bord de l'écran, l'alien descend d'un cran
                 self.direction = 1
-                self.alien_y += 25
+                liste_aliens_y = [k+25 for k in liste_aliens_y]
         if PERDU == False:
             #Déplacement visuel
-            self.canvas.coords(self.alien,self.alien_x,self.alien_y,self.alien_x+100,self.alien_y+20)
+            for k in range(len(liste_aliens)):
+                self.canvas.coords(liste_aliens[k],liste_aliens_x[k],liste_aliens_y[k],liste_aliens_x[k]+100,liste_aliens_y[k]+20)
             self.window.after(40,self.run)  #La méthode after semble retourner une erreur à 13 chiffres
             
             
@@ -197,9 +163,13 @@ class Tir():
         self.canvas = canvas
         self.window = window
         
-        self.tir = self.canvas.create_rectangle(self.x,self.y,self.x+6,self.y+15,fill="white")
+        global tir_in_screen
         
-        self.window.after(100,self.complete_move)
+        if (self.camp==1 and tir_in_screen==False) or self.camp==0:
+            tir_in_screen = True
+            self.tir = self.canvas.create_rectangle(self.x,self.y,self.x+6,self.y+15,fill="white")
+        
+            self.window.after(100,self.complete_move)
     
     def simple_move(self):
         """
@@ -219,11 +189,17 @@ class Tir():
         Cette fonction appelle la fonction simple_move en boucle tant que le bord de l'écran n'est pas atteint et teste les collisions
         """
         
+        global tir_in_screen
+        global liste_aliens
         if self.x+6>100 and self.x<200 and self.y<730 and self.y+15>700 and ilot1.vies!=0:
             #Test de contact de l'ilot 1
             if ilot1.vies>1:
                 #Si il ne disparait pas avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot1.vies -= 1
                 
                 if ilot1.vies == 4:
@@ -237,6 +213,10 @@ class Tir():
             elif ilot1.vies == 1:
                 #S'il disparaît avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot1.vies -= 1
                 self.canvas.delete(ilot1.ilot)
         elif self.x+6>400 and self.x<500 and self.y<730 and self.y+15>700 and ilot2.vies!=0:
@@ -244,6 +224,10 @@ class Tir():
             if ilot2.vies>1:
                 #Si il ne disparait pas avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot2.vies -= 1
                 
                 if ilot2.vies == 4:
@@ -257,6 +241,10 @@ class Tir():
             elif ilot2.vies == 1:
                 #S'il disparaît avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot2.vies -= 1
                 self.canvas.delete(ilot2.ilot)
         elif self.x+6>700 and self.x<800 and self.y<730 and self.y+15>700 and ilot3.vies!=0:
@@ -264,6 +252,10 @@ class Tir():
             if ilot3.vies>1:
                 #Si il ne disparait pas avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot3.vies -= 1
                 
                 if ilot3.vies == 4:
@@ -277,6 +269,10 @@ class Tir():
             elif ilot3.vies == 1:
                 #S'il disparaît avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot3.vies -= 1
                 self.canvas.delete(ilot3.ilot)
         elif self.x+6>1000 and self.x<1100 and self.y<730 and self.y+15>700 and ilot4.vies!=0:
@@ -284,6 +280,10 @@ class Tir():
             if ilot4.vies>1:
                 #Si il ne disparait pas avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot4.vies -= 1
                 
                 if ilot4.vies == 4:
@@ -297,22 +297,32 @@ class Tir():
             elif ilot4.vies == 1:
                 #S'il disparaît avec ce coup
                 self.canvas.delete(self.tir)
+                
+                if self.camp==1:
+                    tir_in_screen = False
+                
                 ilot4.vies -= 1
                 self.canvas.delete(ilot4.ilot)
         elif self.camp == 1:
             #Tir provenant du vaisseau
-            for alien in groupe_alien.liste_aliens:
-                if alien.dead == 0 and (self.y<=alien.alien_y+20) and (self.y+15>=alien.alien_y) and (self.x+6>=alien.alien_x) and (self.x<=alien.alien_x+100):
-                    #Test de collision avec l'alien
-                    self.canvas.delete(self.tir)
-                    self.canvas.delete(alien.alien)
-                    groupe_alien.liste_aliens.remove(alien)
-                    alien.dead = 1
-                elif self.y>=-15: #vérification que le bord de l'écran n'est pas atteint
+            k=0
+            while k<len(liste_aliens):
+                if self.x+6>=liste_aliens_x[k] and self.x<=liste_aliens_x[k]+100:
+                    if self.y+15>=liste_aliens_y[k] and self.y<=liste_aliens_y[k]+20:
+                        self.canvas.delete(self.tir)
+                        tir_in_screen = False
+                        self.canvas.delete(liste_aliens[k])
+                        liste_aliens.remove(liste_aliens[k])
+                        liste_aliens_x.remove(liste_aliens_x[k])
+                        liste_aliens_y.remove(liste_aliens_y[k])
+                        break
+                k+=1
+            if self.y>=-15: #vérification que le bord de l'écran n'est pas atteint
                     self.window.after(50, self.simple_move) #minimisation du temps entre deux déplacements
-                    break 
-                else: #si l'élement sort du canvas on le supprime afin de ne pas gérer les déplacements d'élements non visibles
+                     
+            else: #si l'élement sort du canvas on le supprime afin de ne pas gérer les déplacements d'élements non visibles
                     self.canvas.delete(self.tir)
+                    tir_in_screen = False
         else :
             #Tir provenant de l'alien
             if (self.y+15>=785) and (self.x +6 >= vaisseau.player_x) and (self.x <= vaisseau.player_x + 60):
@@ -363,18 +373,17 @@ canvas.pack(expand=True)
         
 #Vaisseau et 1er alien
 vaisseau = Vaisseau(canvas,window)
-groupe_alien = GroupeAlien(canvas,window,5)
+alien = Alien(canvas,window,5)
+alien.run()
         
 ilot1 = Ilot(window,canvas,100,700)
 ilot2 = Ilot(window,canvas,400,700)
 ilot3 = Ilot(window,canvas,700,700)
 ilot4 = Ilot(window,canvas,1000,700)
             
-groupe_alien.run()
 window.bind("<KeyPress-Right>",vaisseau.right) 
 window.bind("<KeyRelease-Right>",vaisseau.stopright)
 window.bind("<KeyPress-Left>",vaisseau.left)
 window.bind("<KeyRelease-Left>",vaisseau.stopleft)
 window.bind("<KeyPress-space>",vaisseau.tir)
-window.bind("<KeyRelease-space>",vaisseau.stoptir)
 window.mainloop()
