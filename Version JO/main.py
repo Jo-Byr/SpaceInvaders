@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jan 14 16:24:39 2021
+Created on Fri Jan 15 08:34:06 2021
 
 @author: jonat
 """
@@ -12,14 +12,10 @@ from random import randint
 """
 Parfois il est possible de lancer 2 tirs (presque) à la fois
 Les aliens ne tirent pas
+Les popups de défaite s'ouvrent non-stop
 """
     
-T = [[0,time()],[0,time()]]
-RIGHT = False
-LEFT = False
 tir_in_screen = False
-PERDU = False
-VIES = 3
  
 class Vaisseau():
     """
@@ -29,6 +25,9 @@ class Vaisseau():
         self.window = window
         self.canvas = canvas
         
+        self.T = [[0,time()],[0,time()]]
+        self.RIGHT = False
+        self.LEFT = False
         self.player_x = 0
         self.player = self.canvas.create_rectangle(self.player_x,780,self.player_x+60,802,fill='white')
          
@@ -36,18 +35,17 @@ class Vaisseau():
         """
         Cette fonction permet un déplacement à droite et initialise un déplacement continue vers la droite si le bouton est maitnenue
         """
-        global RIGHT
-        T[0] = T[1]
-        T[1] = [event.keysym,time()]
-        if (T[0][0] != T[1][0] or RIGHT==False) and self.player_x<1140:
-            RIGHT = True
+        self.T[0] = self.T[1]
+        self.T[1] = [event.keysym,time()]
+        if (self.T[0][0] != self.T[1][0] or self.RIGHT==False) and self.player_x<1140:
+            self.RIGHT = True
             self.boucle_right()
         
     def boucle_right(self):
         """
         Cette fonction est celle appelée en boucle afin de maintenir le mouvement vers la droite
         """
-        if RIGHT == True and self.player_x<1140:
+        if self.RIGHT == True and self.player_x<1140:
             self.player_x += 5
             self.canvas.coords(self.player,self.player_x,780,self.player_x+60,802)
             self.window.after(10,self.boucle_right)
@@ -56,25 +54,23 @@ class Vaisseau():
         """
         Cette fonction premet de cesser le mouvement continu vers la droite lorsque le bouton est relaché
         """
-        global RIGHT
-        RIGHT = False
+        self.RIGHT = False
         
     def left(self,event):
         """
         Même fonctionnement que la fonction right mais vers la gauche
         """
-        global LEFT
-        T[0] = T[1]
-        T[1] = [event.keysym,time()]
-        if (T[0][0] != T[1][0] or LEFT==False) and self.player_x>0:
-            LEFT = True
+        self.T[0] = self.T[1]
+        self.T[1] = [event.keysym,time()]
+        if (self.T[0][0] != self.T[1][0] or self.LEFT==False) and self.player_x>0:
+            self.LEFT = True
             self.boucle_left()
         
     def boucle_left(self):
         """ 
         Même fonctionnement que la fonction boucle_right mais vers la gauche
         """
-        if LEFT == True and self.player_x>0:
+        if self.LEFT == True and self.player_x>0:
             self.player_x -= 5
             self.canvas.coords(self.player,self.player_x,780,self.player_x+60,802)
             self.window.after(10,self.boucle_left)
@@ -83,8 +79,7 @@ class Vaisseau():
         """
         Même fonctionnement que la fonction stopleft mais pour la gauche
         """
-        global LEFT
-        LEFT = False
+        self.LEFT = False
         
     def tir(self,event):
         """
@@ -94,9 +89,6 @@ class Vaisseau():
         
         Tir(self.player_x+27,760,self.canvas,self.window,1)
 
-liste_aliens = []
-liste_aliens_x = []
-liste_aliens_y = []
 class Alien():
     """
     Classe générant un alien et gérant ses déplacements
@@ -108,48 +100,48 @@ class Alien():
         
         self.direction = 1
         
-        global liste_aliens_x,liste_aliens_y
+        self.liste_aliens_x = []
+        self.liste_aliens_y = []
+        self.liste_aliens = []
         
         for k in range(number):
-            liste_aliens.append(self.canvas.create_rectangle(200*k,0,200*k+100,20, fill='white'))
-            liste_aliens_x.append(200*k)
-            liste_aliens_y.append(0)
+            self.liste_aliens.append(self.canvas.create_rectangle(200*k,0,200*k+100,20, fill='white'))
+            self.liste_aliens_x.append(200*k)
+            self.liste_aliens_y.append(0)
             
     def run(self):
-        global liste_aliens_x,liste_aliens_y,PERDU
+        
+        for k in range(len(self.liste_aliens_x)):
+            if randint(1,300)==1:
+                Tir(self.liste_aliens_x[k]+47,self.liste_aliens_y[k]+25,self.canvas,self.window,0)
         direction = self.direction #Variable disant si l'alien doit aller à droite (1) ou à gauche (0)
-        if liste_aliens_x[0] >= 780 :
+        if self.liste_aliens_y[0] >= 780 :
             #Test de collision avec le joueur
-            PERDU = True #Décelenche un popup
             Defaite(self.window)
+            
         elif direction==1:
             #Déplacement à droite
-            if liste_aliens_x[-1]<1100:
+            if self.liste_aliens_x[-1]<1100:
                 #Test de collision avec le bord de l'écran
-                liste_aliens_x = [k+4 for k in liste_aliens_x]
+                self.liste_aliens_x = [k+4 for k in self.liste_aliens_x]
             else:
                 #Au contact du bord de l'écran, l'alien descend d'un cran
                 self.direction = -1
-                liste_aliens_y = [k+25 for k in liste_aliens_y]
+                self.liste_aliens_y = [k+25 for k in self.liste_aliens_y]
         elif direction == -1:
             #Déplacement à gauche
-            if liste_aliens_x[0]>0:
+            if self.liste_aliens_x[0]>0:
                 #Test de collision avec le bord de l'écran
-                liste_aliens_x = [k-4 for k in liste_aliens_x]
+                self.liste_aliens_x = [k-4 for k in self.liste_aliens_x]
             else:
                 #Au contact du bord de l'écran, l'alien descend d'un cran
                 self.direction = 1
-                liste_aliens_y = [k+25 for k in liste_aliens_y]
-        if PERDU == False:
+                self.liste_aliens_y = [k+25 for k in self.liste_aliens_y]
+        
             #Déplacement visuel
-            for k in range(len(liste_aliens)):
-                self.canvas.coords(liste_aliens[k],liste_aliens_x[k],liste_aliens_y[k],liste_aliens_x[k]+100,liste_aliens_y[k]+20)
-            self.window.after(40,self.run)  #La méthode after semble retourner une erreur à 13 chiffres
-            
-            
-    def tir(self):
-        #Création d'un tir ennemi
-        Tir(self.alien_x+47, self.alien_y + 40, self.canvas, self.window, 0)
+        for k in range(len(self.liste_aliens)):
+            self.canvas.coords(self.liste_aliens[k],self.liste_aliens_x[k],self.liste_aliens_y[k],self.liste_aliens_x[k]+100,self.liste_aliens_y[k]+20)
+        self.window.after(40,self.run)  #La méthode after semble retourner une erreur à 13 chiffres
 
 
 class Tir():
@@ -165,9 +157,14 @@ class Tir():
         
         global tir_in_screen
         
-        if (self.camp==1 and tir_in_screen==False) or self.camp==0:
+        if self.camp==1 and tir_in_screen==False:
             tir_in_screen = True
-            self.tir = self.canvas.create_rectangle(self.x,self.y,self.x+6,self.y+15,fill="white")
+            self.tir = self.canvas.create_rectangle(self.x,self.y,self.x+6,self.y+15,fill="#ff9900")
+        
+            self.window.after(100,self.complete_move)
+        
+        elif self.camp==0:
+            self.tir = self.canvas.create_rectangle(self.x,self.y,self.x+6,self.y+15,fill="#4287f5")
         
             self.window.after(100,self.complete_move)
     
@@ -175,14 +172,12 @@ class Tir():
         """
         Cette fonction effectue un "déplacement élementaire" d'un tir
         """
-        global PERDU
-        if PERDU == False:
-            if self.camp == 1:
-                self.y -= 5
-            else:
-                self.y += 5
-            self.canvas.coords(self.tir,self.x,self.y,self.x+6,self.y+15)
-            self.complete_move() #fonction pseudo récursive
+        if self.camp == 1:
+            self.y -= 5
+        else:
+            self.y += 5
+        self.canvas.coords(self.tir,self.x,self.y,self.x+6,self.y+15)
+        self.complete_move() #fonction pseudo récursive
     
     def complete_move(self):
         """
@@ -307,14 +302,14 @@ class Tir():
             #Tir provenant du vaisseau
             k=0
             while k<len(liste_aliens):
-                if self.x+6>=liste_aliens_x[k] and self.x<=liste_aliens_x[k]+100:
-                    if self.y+15>=liste_aliens_y[k] and self.y<=liste_aliens_y[k]+20:
+                if self.x+6>=alien.liste_aliens_x[k] and self.x<=alien.liste_aliens_x[k]+100:
+                    if self.y+15>=alien.liste_aliens_y[k] and self.y<=alien.liste_aliens_y[k]+20:
                         self.canvas.delete(self.tir)
                         tir_in_screen = False
-                        self.canvas.delete(liste_aliens[k])
-                        liste_aliens.remove(liste_aliens[k])
-                        liste_aliens_x.remove(liste_aliens_x[k])
-                        liste_aliens_y.remove(liste_aliens_y[k])
+                        self.canvas.delete(alien.liste_aliens[k])
+                        alien.liste_aliens.remove(alien.liste_aliens[k])
+                        alien.liste_aliens_x.remove(alien.liste_aliens_x[k])
+                        alien.liste_aliens_y.remove(alien.liste_aliens_y[k])
                         break
                 k+=1
             if self.y>=-15: #vérification que le bord de l'écran n'est pas atteint
@@ -328,13 +323,10 @@ class Tir():
             if (self.y+15>=785) and (self.x +6 >= vaisseau.player_x) and (self.x <= vaisseau.player_x + 60):
                 #Test de collision avec le vaisseau
                 self.canvas.delete(self.tir)
-                global VIES
-                VIES -= 1
-                label_vies['text'] = "Vies : " + str(VIES)
-                if VIES == 0:
-                    global PERDU
-                    PERDU = True
+                label_vies['text'] = "Vies : " + str(int(label_vies['text'])-1)
+                if label_vies['text'] == '0':
                     Defaite(self.window)
+                    
             elif self.y<=800:
                 #Test de sortie d'écran
                 self.window.after(50, self.simple_move)
@@ -345,7 +337,11 @@ class Defaite():
     def __init__(self,window):
         self.window = window
         popup = Toplevel()
+        popup.title('Défaite')
+        Button(popup,text='Quitter',command=lambda:self.window.destroy()).pack(padx=10,pady=10)
         popup.transient(self.window)
+        popup.grab_set()
+        self.window.wait_window(popup)
         
 class Ilot():
     def __init__(self,window,canvas,x,y):
