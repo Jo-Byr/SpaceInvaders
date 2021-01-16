@@ -5,13 +5,14 @@ Created on Fri Jan 15 14:37:53 2021
 @author: jonat
 """
 
-from tkinter import Toplevel, Button
+from tkinter import Toplevel, Button,Label
 
+lost = False
 class Defeat():
     """
     Class generating a popup when the game is lost
     """
-    def __init__(self,window):
+    def __init__(self,window,text):
         """
         This function creates a popup when the game is lost
 
@@ -25,10 +26,17 @@ class Defeat():
         None.
 
         """
-        self.window = window
+        
         popup = Toplevel() #Popup above the main window
-        popup.title('Defeat')
-        Button(popup,text='Quitter',command=lambda:self.window.destroy()).pack(padx=10,pady=10)
-        popup.transient(self.window) #Impossible to reduct
+        popup.geometry("300x150")
+        popup.title(text)
+        if text=="Defeat":
+            label_text = "You have lost!\nYou can launch a new game from the game window"
+        elif text=="Victory":
+            label_text = "You have won!\nYou can launch a new game from the game window"
+        Label(popup,text=label_text).pack()
+        Button(popup,text='Close',command=lambda:window.destroy()).pack(padx=10,pady=20)
+        Button(popup,text='Return to the game',command=lambda:popup.destroy()).pack(padx=10,pady=3)
+        popup.transient(window) #Impossible to reduct
         popup.grab_set() #Impossible to interact with the main window
-        self.window.wait_window(popup) #Main window paused
+        window.wait_window(window) #Main window paused

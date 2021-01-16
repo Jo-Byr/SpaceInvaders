@@ -16,7 +16,7 @@ from tkinter import Tk,Label,Button,Canvas
 from alien import Alien
 from ship import Ship
 from protection import Protection
-
+    
 window = Tk() #Game window
 window.geometry("1200x900")
         
@@ -34,6 +34,7 @@ button_new.place(x=400, y=860)
         
 button_quit = Button(window, text="Quit", width=15, command = lambda:window.destroy()) #Quit button
 button_quit.place(x=680, y=860)
+
         
 ship = Ship(canvas,window) #Player's ship
 alien = Alien(canvas,window,5,3) #Aliens generation

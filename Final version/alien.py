@@ -45,6 +45,7 @@ class Alien():
         self.list_aliens_y = [] #List of the ordinate of all the aliens. This list is not necessary but makes the code clearer
         self.list_aliens = [] #List of all aliens
         self.list_shooters = [] #List of all shooting aliens
+        
         for j in range(numbery):
             if j%2==0: #There is numberx aliens on even rows and numberx-1 on odd ones
                 nx = numberx
@@ -83,10 +84,13 @@ class Alien():
         None.
 
         """
+        from shot import lost #Putting that at the beginning of the function doesn't work (even with a global)
+        
         self.list_aliens_x = []
         self.list_aliens_y = []
         self.list_aliens = []
         self.list_shooters = []
+        
         for k in self.canvas.find_withtag('alien'): #Update of the remaining aliens, shooters and their positions
             if self.canvas.coords(k)!=[]:
                 self.list_aliens.append(k)
@@ -106,18 +110,18 @@ class Alien():
                 Shot(self.canvas.coords(k)[0]+47,self.canvas.coords(k)[1]+45,self.canvas,self.window,0)
         
         if max(self.list_aliens_y) >= 780 : #Collision test with the row of the player
-            Defeat(self.window) #If this row is touched, the gam is lost and a popup is created
+            Defeat(self.window,"Defeat") #If this row is touched, the game is lost and a popup is created
             
         elif self.direction==1: #Move on the right
             if max(self.list_aliens_x)<1100: #Collision test with the right edge of the screen
-                self.list_aliens_x = [k+2 for k in self.list_aliens_x]
+                self.list_aliens_x = [k+1 for k in self.list_aliens_x]
             else: #When the right edge is touched, every aliens goes down by 20px
                 self.direction = -1
                 self.list_aliens_y = [k+20 for k in self.list_aliens_y]
         
         elif self.direction == -1: #Move on the left
             if min(self.list_aliens_x)>0: #Collision test with the left edge of the screen
-                self.list_aliens_x = [k-2 for k in self.list_aliens_x]
+                self.list_aliens_x = [k-1 for k in self.list_aliens_x]
             else: #When the left edge is touched, every aliens goes down by 20px
                 self.direction = 1
                 self.list_aliens_y = [k+20 for k in self.list_aliens_y]
@@ -126,4 +130,5 @@ class Alien():
         for k in range(len(self.list_aliens)): #Visual move
             self.canvas.coords(self.list_aliens[k],self.list_aliens_x[k],self.list_aliens_y[k],self.list_aliens_x[k]+100,self.list_aliens_y[k]+20)
         
-        self.window.after(40,self.run) #Recall of the function after 40ms
+        if lost==False:
+            self.window.after(20,self.run) #Recall of the function after 40ms
