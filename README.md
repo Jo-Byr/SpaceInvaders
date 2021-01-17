@@ -1,5 +1,7 @@
 # SpaceInvaders
+
 Projet de programmation d'un Space Invader en Python en orienté objet.
+
 Ce document est en français mais la documentation des fichiers est en anglais pour prendre de bonnes habitudes.
 
 Commentaires sur le jeu:
