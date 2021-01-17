@@ -123,6 +123,9 @@ class Shot():
                             except TclError:True
                         self.canvas.delete(j) #Deletes the element
                         self.canvas.delete(self.shot) #Deletes the shot
+                        if self.canvas.find_withtag('alien')==():
+                            lost=True
+                            End(self.window,"Victory")
                         break
         if lost==False:
             self.window.after(10, self.simple_move)

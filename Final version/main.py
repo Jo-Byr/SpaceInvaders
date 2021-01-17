@@ -6,9 +6,9 @@ Created on Fri Jan 15 14:38:12 2021
 """
 
 """
-Needed changes (in french):
-Une fin de partie par collision avec le bord de l'écran renvoie une erreur (mais le reste fonctionne)
-Le bouton New Game fonctionne mais accélère les ennemis ou les freeze
+Needed changes :
+Losing by letting the aliens touch the bottom of the window does not freeze the shots
+The New Game button works approximately 1/4 times. The rest of the time it either accelerates the aliens, freezes them or makes the window crash
 """
 
 from tkinter import Tk,Label,Button,Canvas
@@ -59,7 +59,7 @@ class SpaceInvaders():
 
         """
         self.ship = Ship(self.canvas,self.window)
-        self.alien = Alien(self.canvas,self.window,10,10)
+        self.alien = Alien(self.canvas,self.window,1,1)
         self.alien.run()
         
         self.protection1 = Protection(self.canvas,self.window,100,700)
