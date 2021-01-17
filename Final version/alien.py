@@ -54,7 +54,7 @@ class Alien():
                 nx = numberx-1 
             for k in range(nx):
                 if randint(0,4)==0: #Each alien as a 1/4 chance to be a shooter
-                    X = self.canvas.create_rectangle((k+1)*(1200-nx*100)/(nx+1)+k*100,40*j,(k+1)*(1200-nx*100)/(nx+1)+(k+1)*100,40*j+20, fill='white') #Repartition regulière des aliens
+                    X = self.canvas.create_rectangle((k+1)*(1200-nx*100)/(nx+1)+k*100,40*j,(k+1)*(1200-nx*100)/(nx+1)+(k+1)*100,40*j+20, fill='white') 
                     self.list_shooters.append(X)
                     self.list_aliens.append(X)
                 else:
