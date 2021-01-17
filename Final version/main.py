@@ -84,6 +84,8 @@ class SpaceInvaders():
         None.
 
         """
+        self.label_score['text'] = "Score : 0"
+        self.label_vies['text'] = "Lives : 3"
         self.canvas.delete('all')
         self.run()
           
