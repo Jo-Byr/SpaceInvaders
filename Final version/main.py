@@ -59,7 +59,7 @@ class SpaceInvaders():
 
         """
         self.ship = Ship(self.canvas,self.window)
-        self.alien = Alien(self.canvas,self.window,1,1)
+        self.alien = Alien(self.canvas,self.window,5,5)
         self.alien.run()
         
         self.protection1 = Protection(self.canvas,self.window,100,700)
