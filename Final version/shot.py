@@ -6,7 +6,7 @@ Created on Sat Jan 16 05:09:03 2021
 """
 
 from time import time
-from defeat import Defeat
+from end import End
 from tkinter import TclError
 
 lost = False #Variable shared with alien.py, when True the game is freezed (enabled on defeat)
@@ -66,7 +66,6 @@ class Shot():
         None.
 
         """
-        
         if self.camp == 1: #The player's shots go up vertically
             self.y -= 1
         else: #The aliens' shots go down vertically
@@ -106,7 +105,7 @@ class Shot():
                                 if int(k['text'][8:])==0:
                                     global lost
                                     lost = True
-                                    Defeat(self.window,"Defeat") #If lives fall to 0, a defeat popup is generated
+                                    End(self.window,"Defeat") #If lives fall to 0, a defeat popup is generated
                         except TclError:True
                     break
                 else: #Non-protections elements (Aliens and aliens' shots) have 1HP, and so are destroyed when colliding with one of the player's shots
@@ -117,7 +116,7 @@ class Shot():
                                     if j in self.canvas.find_withtag('shooter'):
                                         k['text'] = "Score : " + str(int(k['text'][8:])+25)
                                     elif j in self.canvas.find_withtag('bonus'):
-                                        k['text'] = "Score : " + str(int(k['text'][8:])+125)
+                                        k['text'] = "Score : " + str(int(k['text'][8:])+150)
                                     else:
                                         k['text'] = "Score : " + str(int(k['text'][8:])+10)
                             

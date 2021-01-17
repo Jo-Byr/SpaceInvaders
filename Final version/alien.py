@@ -6,7 +6,7 @@ Created on Sat Jan 16 05:40:36 2021
 """
 
 from random import randint
-from defeat import Defeat
+from end import End
 from shot import Shot
 from alienbonus import AlienBonus
 
@@ -39,7 +39,7 @@ class Alien():
         self.window = window
         
         self.direction = 1 #Variable commending the direction of the aliens : they head to right for 1 and to left for 0
-        
+        self.colorlist = ['#00FF00','#A6FF00','#FFFF00','#FF8000','#FF0000'] #List of the colors the protections takes depending on their HP, used for collisions
         self.bonus_passed = 0 #Variable saying if a bonus alien already passed (cf. alienbonus.py), only one can pass per game
         self.list_aliens_x = [] #List of the abciss of all the aliens. This list is not necessary but makes the code clearer
         self.list_aliens_y = [] #List of the ordinate of all the aliens. This list is not necessary but makes the code clearer
@@ -100,17 +100,27 @@ class Alien():
                 if k in self.canvas.find_withtag('shooter'):
                     self.list_shooters.append(k)
         
-        for k in range(4): #If there's a large enough shooting window, we create a bonus alien
-            if self.canvas.find_overlapping(300*k,0,300*(k+1),600)==() and self.bonus_passed == 0 and max(self.list_aliens_y)<600:
+        for k in self.canvas.find_withtag('protection'):
+            overlap = self.canvas.find_overlapping(self.canvas.coords(k)[0], self.canvas.coords(k)[1], self.canvas.coords(k)[2], self.canvas.coords(k)[3])
+            for j in overlap:
+                if j in self.canvas.find_withtag('alien'):
+                    self.canvas.delete(j)
+                    if self.canvas.itemcget(self.canvas.find_withtag(k), "fill") in self.colorlist[0:4]: #If the protection has more than 1 HP, we change its color for the next in the list earlier created
+                        self.canvas.itemconfig(self.canvas.find_withtag(k),fill=self.colorlist[self.colorlist.index(self.canvas.itemcget(self.canvas.find_withtag(k), "fill"))+1])
+                    else:
+                        self.canvas.delete(k)
+        
+        for k in range(0,900,10): #If there's a large enough shooting window, we create a bonus alien
+            if self.canvas.find_overlapping(k,0,k+300,600)==() and self.bonus_passed == 0 and max(self.list_aliens_y)<600:
                 AlienBonus(self.canvas,self.window,max(self.list_aliens_y)+100)
                 self.bonus_passed = 1
         
         for k in self.list_shooters: #Each shooter has a 1/125 chance of shooting at each movement
-            if randint(1,125)==1:
+            if randint(1,20000000)==1:
                 Shot(self.canvas.coords(k)[0]+47,self.canvas.coords(k)[1]+45,self.canvas,self.window,0)
         
         if max(self.list_aliens_y) >= 780 : #Collision test with the row of the player
-            Defeat(self.window,"Defeat") #If this row is touched, the game is lost and a popup is created
+            End(self.window,"Defeat") #If this row is touched, the game is lost and a popup is created
             
         elif self.direction==1: #Move on the right
             if max(self.list_aliens_x)<1100: #Collision test with the right edge of the screen

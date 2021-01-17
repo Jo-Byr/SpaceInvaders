@@ -7,50 +7,84 @@ Created on Fri Jan 15 14:38:12 2021
 
 """
 Needed changes (in french):
-Le random des tirs ennemis peut faire qu'on a des grosses salves ou quasi rien
-Le popup de defaite ne stoppe pas la fenêtre
-Il faut un message de victoire
+Une fin de partie par collision avec le bord de l'écran renvoie une erreur (mais le reste fonctionne)
+Le bouton New Game fonctionne mais accélère les ennemis ou les freeze
 """
 
 from tkinter import Tk,Label,Button,Canvas
 from alien import Alien
 from ship import Ship
 from protection import Protection
+
+class SpaceInvaders():
+    """
+    Class creating the game window and its elements, the game elements and start the game
+    """
+    def __init__(self):
+        """
+        This function creates the game window and its elements
+
+        Returns
+        -------
+        None.
+
+        """
+        self.window = Tk()
+        self.window.geometry("1200x900")
+        
+        self.label_score = Label(self.window, text="Score : 0")
+        self.label_score.place(x=10, y=10)
+        
+        self.label_vies = Label(self.window, text="Lives : 3")
+        self.label_vies.place(x=1130, y=10)
+        
+        self.button_new = Button(self.window, text="New Game", width=15,command=lambda:self.restart())
+        self.button_new.place(x=400, y=860)
+        
+        self.button_quit = Button(self.window, text="Quit", width=15, command = lambda:self.window.destroy())
+        self.button_quit.place(x=680, y=860)
+        
+        self.canvas = Canvas(self.window, height = "800", width = "1200", bg='black')
+        self.canvas.pack(expand=True)
+        
+        self.run()
     
-window = Tk() #Game window
-window.geometry("1200x900")
-        
-label_score = Label(window, text="Score : 0") #Score label
-label_score.place(x=10, y=10) 
-        
-label_vies = Label(window, text="Lives : 3")#Lives label
-label_vies.place(x=1130, y=10)
-        
-canvas = Canvas(window, height = "800", width = "1200", bg='black') #Canvas where the game is displayed
-canvas.pack(expand=True)
-        
-button_new = Button(window, text="New Game", width=15) #New Game button
-button_new.place(x=400, y=860)
-        
-button_quit = Button(window, text="Quit", width=15, command = lambda:window.destroy()) #Quit button
-button_quit.place(x=680, y=860)
+    def run(self):
+        """
+        This function creates the game elements and start a game
 
-        
-ship = Ship(canvas,window) #Player's ship
-alien = Alien(canvas,window,5,3) #Aliens generation
-alien.run() #Aliens' movement intialization
+        Returns
+        -------
+        None.
 
-#Protections creation        
-protection1 = Protection(canvas,window,100,700) 
-protection2 = Protection(canvas,window,400,700)
-protection3 = Protection(canvas,window,700,700)
-protection4 = Protection(canvas,window,1000,700)
-      
-#Controls binding      
-window.bind("<KeyPress-Right>",ship.right) 
-window.bind("<KeyRelease-Right>",ship.stopright)
-window.bind("<KeyPress-Left>",ship.left)
-window.bind("<KeyRelease-Left>",ship.stopleft)
-window.bind("<KeyPress-space>",ship.tir)
-window.bind("<KeyRelease-space>",ship.stoptir)
-window.mainloop()
+        """
+        self.ship = Ship(self.canvas,self.window)
+        self.alien = Alien(self.canvas,self.window,10,10)
+        self.alien.run()
+        
+        self.protection1 = Protection(self.canvas,self.window,100,700)
+        self.protection2 = Protection(self.canvas,self.window,400,700)
+        self.protection3 = Protection(self.canvas,self.window,700,700)
+        self.protection4 = Protection(self.canvas,self.window,1000,700)
+        
+        self.window.bind("<KeyPress-Right>",self.ship.right) 
+        self.window.bind("<KeyRelease-Right>",self.ship.stopright)
+        self.window.bind("<KeyPress-Left>",self.ship.left)
+        self.window.bind("<KeyRelease-Left>",self.ship.stopleft)
+        self.window.bind("<KeyPress-space>",self.ship.tir)
+        self.window.bind("<KeyRelease-space>",self.ship.stoptir)
+        self.window.mainloop()
+    
+    def restart(self):
+        """
+        This function reinitialize the position and the number of the aliens, the lives of the player and the protection, and the score
+
+        Returns
+        -------
+        None.
+
+        """
+        self.canvas.delete('all')
+        self.run()
+          
+SpaceInvaders()
