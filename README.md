@@ -64,4 +64,6 @@ Features que nous aurions voulu implémenter (et pensons savoir comment):
   4-Cheatcodes. Il aurait suffit de garder en mémoire les inputs du joueur un certains temps et voir s'il respectait un certain ordre. Une fenêtre de temps spécifique à chaque input aurait permis de minimiser les codes non intentionnels
   
   
-Commentaire global : Etant notre premier projet en Orienté Objet, nous n'avons pas su organiser notre code correctement, et nous sommes retrouvé avec des importations cycliques en fin de dernière séance lorsque nous commencions à implanter les popups de victoire et défaite. Il était alors trop tard pour revoir la structure du code.
+Commentaire global : 
+
+Etant notre premier projet en Orienté Objet, nous n'avons pas su organiser notre code correctement, et nous sommes retrouvé avec des importations cycliques en fin de dernière séance lorsque nous commencions à implanter les popups de victoire et défaite. Il était alors trop tard pour revoir la structure du code.
